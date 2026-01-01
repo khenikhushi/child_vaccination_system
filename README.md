@@ -88,4 +88,4 @@ This project is developed as an **academic final-year project** with real-world 
 
 1. Clone the repository
    ```bash
-   git clone https://github.com/your-username/child-vaccination-management-system.git
+   git clone https://github.com/khenikhushi/child-vaccination-management-system.git
