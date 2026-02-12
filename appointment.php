@@ -4,11 +4,11 @@ session_start();
 include("connection.php");
 
 
-// Check parent login - UNCOMMENT THIS FOR PRODUCTION
-// if (!isset($_SESSION['user']['id']) || $_SESSION['user']['role'] != 'parent') {
-//     echo "You must be logged in as a parent to access this page.";
-//     exit();
-// }
+// Check parent login - ENABLED FOR PRODUCTION
+if (!isset($_SESSION['user']['id']) || $_SESSION['user']['role'] != 'parent') {
+    echo "You must be logged in as a parent to access this page.";
+    exit();
+}
 
 
 // Get vaccines with stock
@@ -155,22 +155,29 @@ Book Vaccination Appointment
             body: formData,
             headers: {
                 'X-Requested-With': 'XMLHttpRequest' // IMPORTANT: Add this header
+                // Note: Don't set Content-Type with FormData, browser sets it automatically
             }
         })
         .then(response => {
-            // Check if the response is OK (status 200-299)
-            if (!response.ok) {
-                // If not OK, attempt to parse as JSON for specific error messages
-                return response.json().then(errorData => {
-                    throw new Error(errorData.error || 'Server error.');
-                }).catch(() => {
-                    // Fallback for non-JSON error responses (e.g., plain text 'An unexpected error occurred.')
-                    return response.text().then(text => {
-                        throw new Error(text || 'Unknown server error during booking.');
-                    });
-                });
-            }
-            return response.json(); // Always expect JSON
+            // Always read the body once
+            return response.text().then(text => {
+                // If we got a response, try to parse as JSON
+                try {
+                    const data = text ? JSON.parse(text) : {};
+                    // Check HTTP status
+                    if (!response.ok) {
+                        throw new Error(data.error || `Server error: ${response.status}`);
+                    }
+                    return data;
+                } catch (e) {
+                    // If JSON parsing fails and status is not OK, use the text as error
+                    if (!response.ok) {
+                        throw new Error(text || `Server error: ${response.status}`);
+                    }
+                    // If status is OK but JSON parsing failed, still try to use the response
+                    throw new Error('Invalid response format from server');
+                }
+            });
         })
         .then(data => {
             if (data.success) {
@@ -211,13 +218,17 @@ Book Vaccination Appointment
                 },
                 body: 'action=get_doses&vaccine=' + encodeURIComponent(vaccine)
             })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(errorData => {
-                        throw new Error(errorData.error || 'Server error fetching doses.');
-                    });
+            .then(response => response.text().then(text => ({ status: response.status, ok: response.ok, text })))
+            .then(({ status, ok, text }) => {
+                try {
+                    const data = JSON.parse(text);
+                    if (!ok) {
+                        throw new Error(data.error || `Server error: ${status}`);
+                    }
+                    return data;
+                } catch (e) {
+                    throw new Error(!ok ? (text || `Server error: ${status}`) : 'Invalid response format');
                 }
-                return response.json();
             })
             .then(data => {
                 data.forEach(dose => {
@@ -243,13 +254,17 @@ Book Vaccination Appointment
                 },
                 body: 'action=get_centers'
             })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(errorData => {
-                        throw new Error(errorData.error || 'Server error fetching centers.');
-                    });
+            .then(response => response.text().then(text => ({ status: response.status, ok: response.ok, text })))
+            .then(({ status, ok, text }) => {
+                try {
+                    const data = JSON.parse(text);
+                    if (!ok) {
+                        throw new Error(data.error || `Server error: ${status}`);
+                    }
+                    return data;
+                } catch (e) {
+                    throw new Error(!ok ? (text || `Server error: ${status}`) : 'Invalid response format');
                 }
-                return response.json();
             })
             .then(data => {
                 centerSelect.innerHTML = '<option value="">--Select Center--</option>';
@@ -280,13 +295,17 @@ Book Vaccination Appointment
                 },
                 body: 'action=get_address&h_id=' + encodeURIComponent(centerId)
             })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(errorData => {
-                        throw new Error(errorData.error || 'Server error fetching address.');
-                    });
+            .then(response => response.text().then(text => ({ status: response.status, ok: response.ok, text })))
+            .then(({ status, ok, text }) => {
+                try {
+                    const data = JSON.parse(text);
+                    if (!ok) {
+                        throw new Error(data.error || `Server error: ${status}`);
+                    }
+                    return data;
+                } catch (e) {
+                    throw new Error(!ok ? (text || `Server error: ${status}`) : 'Invalid response format');
                 }
-                return response.json();
             })
             .then(data => {
                 if (data.error) {

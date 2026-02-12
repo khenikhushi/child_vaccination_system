@@ -79,34 +79,35 @@ $result = $connection->query($sql);
     <div style="padding: 20px;">
         <h2>Appointments</h2>
         <table id="appointmentTable" style="width: 100%; border-collapse: collapse;">
-            <tr style="background: #007bff; color: white;">
-                <th style="padding: 10px;">No.</th>
-                <th style="padding: 10px;">Child Name</th>
-                <th style="padding: 10px;">Vaccine Name</th>
-                <th style="padding: 10px;">Vaccine Dose</th>
-                <th style="padding: 10px;">Date</th>
-                <th style="padding: 10px;">Time</th>
-            
-            </tr>
+            <thead>
+                <tr style="background: #007bff; color: white;">
+                    <th style="padding: 10px;">No.</th>
+                    <th style="padding: 10px;">Child Name</th>
+                    <th style="padding: 10px;">Vaccine Name</th>
+                    <th style="padding: 10px;">Vaccine Dose</th>
+                    <th style="padding: 10px;">Date</th>
+                    <th style="padding: 10px;">Time</th>
+                    <th style="padding: 10px;">Status</th>
+                </tr>
+            </thead>
             <tbody>
                 <?php
                 if ($result && $result->num_rows > 0) {
                     $count = 1;
                     while ($row = $result->fetch_assoc()) {
                         echo "<tr>";
-                        echo "<td>{$count}</td>";
-                        echo "<td>{$row['child_name']}</td>";
-                        echo "<td>{$row['vaccine_name']}</td>";
-                        echo "<td>{$row['vaccine_dose']}</td>";
-                        echo "<td>{$row['appointment_date']}</td>"; 
-            echo "<td>{$row['appointment_time']}</td>";
-            
-
+                        echo "<td>" . htmlspecialchars($count) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['child_name']) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['vaccine_name']) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['vaccine_dose']) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['appointment_date']) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['appointment_time']) . "</td>";
+                        echo "<td>" . htmlspecialchars($row['status'] ?? 'pending') . "</td>";
                         echo "</tr>";
                         $count++;
                     }
                 } else {
-                    echo "<tr><td colspan='6'>No appointments found.</td></tr>";
+                    echo "<tr><td colspan='7'>No appointments found.</td></tr>";
                 }
                 ?>
             </tbody>

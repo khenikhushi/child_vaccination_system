@@ -81,7 +81,7 @@ $result_not_registered = $connection->query($sql_not_registered);
     <header class="header">Dashboard</header>
     <nav>
    
-            <a href="adashbord.php">Dashboard</a>
+            <a href="adashboard.php">Dashboard</a>
             <a href="aanganwadi.php">Add Anganwadi Center</a>
             <a href="display.php">Complains</a>
             <a href="logout.php">Logout</a>
